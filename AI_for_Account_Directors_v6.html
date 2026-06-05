@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'DM Sans',sans-serif;background:#f5f5f5;color:#1a1a1a;min-height:100vh;padding:2rem 1rem}
+  #app{max-width:680px;margin:0 auto;padding:1.5rem 1rem 3rem;background:white;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08)}
+  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+  .logo-wrap{display:flex;flex-direction:column;gap:2px}
+  .logo{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;letter-spacing:0.1em;color:#888;text-transform:uppercase}
+  .logo-sub{font-size:11px;color:#888;font-weight:500}
+  .xp-badge{display:flex;align-items:center;gap:6px;background:#f5f5f5;border:0.5px solid #ddd;border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600}
+  .xp-dot{width:7px;height:7px;border-radius:50%;background:#7F77DD;flex-shrink:0}
+  .progress-meta{display:flex;justify-content:space-between;font-size:12px;color:#666;margin-bottom:6px}
+  .progress-track{background:#f0f0f0;border-radius:4px;height:3px;margin-bottom:1.25rem;overflow:hidden}
+  .progress-fill{height:100%;background:#7F77DD;border-radius:4px;transition:width 0.6s ease}
+  .boss-banner{background:#EEEDFE;border:0.5px solid #AFA9EC;border-radius:8px;padding:12px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:10px}
+  .boss-text{font-size:13px;font-weight:600;color:#3C3489}
+  .lesson-card{background:white;border:0.5px solid #e8e8e8;border-radius:12px;padding:1.5rem;margin-bottom:1rem}
+  .concept-tag{display:inline-flex;align-items:center;background:#EEEDFE;color:#3C3489;font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:1rem}
+  .hook-line{font-size:17px;font-weight:700;line-height:1.35;margin-bottom:1rem;color:#1a1a1a;border-left:3px solid #7F77DD;padding-left:12px}
+  .section-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#aaa;margin-bottom:6px}
+  .body-block{font-size:15px;line-height:1.75;color:#555;margin-bottom:1rem}
+  .body-block strong{color:#1a1a1a;font-weight:600}
+  .one-liner{background:#f8f8f8;border-radius:8px;padding:12px 16px;font-size:15px;font-weight:600;line-height:1.4;color:#1a1a1a;border-left:3px solid #EF9F27}
+  .template-card{background:white;border:0.5px solid #ddd;border-radius:12px;padding:1.25rem;margin-bottom:1rem;font-size:13px;line-height:1.7}
+  .template-card-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#aaa;margin-bottom:0.75rem}
+  .template-section{margin-bottom:0.75rem}
+  .template-heading{font-weight:700;font-size:13px;color:#1a1a1a;margin-bottom:2px}
+  .template-value{color:#555;font-size:13px;padding-left:12px;border-left:2px solid #eee}
+  .diagram-area{background:#f8f8f8;border:0.5px solid #eee;border-radius:12px;padding:1rem 1rem 0.5rem;margin-bottom:1rem;overflow:hidden}
+  .diagram-label{font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#aaa;margin-bottom:0.75rem}
+  .quiz-section{margin-bottom:1rem}
+  .quiz-prompt{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#aaa;margin-bottom:8px}
+  .quiz-question{font-size:16px;font-weight:600;line-height:1.45;margin-bottom:1rem;color:#1a1a1a}
+  .options-grid{display:grid;gap:8px}
+  .option-btn{text-align:left;background:white;border:0.5px solid #ddd;border-radius:8px;padding:12px 16px;font-size:14px;font-family:'DM Sans',sans-serif;color:#1a1a1a;cursor:pointer;transition:all 0.15s ease;display:flex;align-items:flex-start;gap:10px;line-height:1.4}
+  .option-btn:hover:not(:disabled){background:#f8f8f8;border-color:#aaa;transform:translateY(-1px)}
+  .option-btn:disabled{cursor:default}
+  .option-btn.correct{background:#EAF3DE;border-color:#639922;color:#27500A}
+  .option-btn.wrong{background:#FCEBEB;border-color:#A32D2D;color:#501313}
+  .option-key{font-family:'Space Mono',monospace;font-size:11px;font-weight:700;width:22px;height:22px;border-radius:4px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#666;margin-top:1px}
+  .feedback-box{border-radius:8px;padding:12px 16px;font-size:14px;line-height:1.6;margin-top:10px;display:none}
+  .feedback-box.show{display:block}
+  .feedback-box.correct-fb{background:#EAF3DE;color:#27500A;border:0.5px solid #639922}
+  .feedback-box.wrong-fb{background:#FCEBEB;color:#501313;border:0.5px solid #A32D2D}
+  .action-row{display:flex;gap:8px;margin-top:1rem}
+  .btn-next{flex:1;background:#7F77DD;color:white;border:none;border-radius:8px;padding:14px;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s ease;display:none}
+  .btn-next:hover{background:#534AB7;transform:translateY(-1px)}
+  .btn-next.show{display:block}
+  .btn-ask{background:#f8f8f8;border:0.5px solid #ddd;border-radius:8px;padding:14px 18px;font-size:14px;font-family:'DM Sans',sans-serif;color:#666;cursor:pointer;transition:all 0.15s ease;display:none;white-space:nowrap}
+  .btn-ask:hover{background:white;color:#1a1a1a}
+  .btn-ask.show{display:block}
+  .xp-pop{position:fixed;top:20px;right:20px;background:#7F77DD;color:white;font-size:13px;font-weight:700;font-family:'Space Mono',monospace;padding:8px 16px;border-radius:20px;opacity:0;transform:translateY(4px);transition:all 0.35s ease;pointer-events:none;z-index:999}
+  .xp-pop.show{opacity:1;transform:translateY(-6px)}
+  .complete-screen{text-align:center;padding:2.5rem 1rem}
+  .complete-icon{font-size:52px;margin-bottom:1rem}
+  .complete-title{font-size:26px;font-weight:700;margin-bottom:0.5rem}
+  .complete-sub{font-size:15px;color:#555;margin-bottom:1.5rem;line-height:1.6}
+  .rank-display{display:inline-block;background:#f8f8f8;border:0.5px solid #eee;border-radius:12px;padding:1rem 2.5rem;margin-bottom:1.5rem}
+  .rank-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#888;margin-bottom:4px}
+  .rank-value{font-size:22px;font-weight:700;color:#7F77DD}
+  .btn-restart{background:#7F77DD;color:white;border:none;border-radius:8px;padding:14px 36px;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all 0.15s ease}
+  .btn-restart:hover{background:#534AB7}
+  .hidden{display:none!important}
+
+  /* SVG classes */
+  .t{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:400;fill:#1a1a1a}
+  .ts{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:400;fill:#555}
+  .th{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;fill:#1a1a1a}
+  .arr{stroke:#888;stroke-width:1.5;fill:none}
+  .c-teal rect,.c-teal circle{fill:#E1F5EE;stroke:#0F6E56;stroke-width:0.5}
+  .c-teal .th,.c-teal .t{fill:#085041}
+  .c-teal .ts{fill:#0F6E56}
+  .c-purple rect,.c-purple circle{fill:#EEEDFE;stroke:#534AB7;stroke-width:0.5}
+  .c-purple .th,.c-purple .t{fill:#26215C}
+  .c-purple .ts{fill:#534AB7}
+  .c-amber rect,.c-amber circle{fill:#FAEEDA;stroke:#BA7517;stroke-width:0.5}
+  .c-amber .th,.c-amber .t{fill:#412402}
+  .c-amber .ts{fill:#854F0B}
+  .c-coral rect,.c-coral circle{fill:#FAECE7;stroke:#993C1D;stroke-width:0.5}
+  .c-coral .th,.c-coral .t{fill:#4A1B0C}
+  .c-coral .ts{fill:#993C1D}
+  .c-gray rect,.c-gray circle{fill:#F1EFE8;stroke:#5F5E5A;stroke-width:0.5}
+  .c-gray .th,.c-gray .t{fill:#2C2C2A}
+  .c-gray .ts{fill:#5F5E5A}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="logo-wrap">
+      <div class="logo">AI for Account Directors</div>
+      <div class="logo-sub">Claude as your internal prep system</div>
+    </div>
+    <div class="xp-badge"><div class="xp-dot"></div><span id="xp-display">0 XP</span></div>
+  </div>
+  <div class="progress-meta">
+    <span id="lesson-counter">Lesson 1 of 12</span>
+    <span id="rank-display">🪵 Novice AD</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  <div id="boss-banner" class="boss-banner hidden">
+    <span style="font-size:20px">⚡</span>
+    <div class="boss-text">Boss Round. You missed these. One more shot.</div>
+  </div>
+  <div id="lesson-content">
+    <div class="lesson-card">
+      <div class="concept-tag" id="concept-tag"></div>
+      <div class="hook-line" id="hook-line"></div>
+      <div class="section-label" id="section-label"></div>
+      <div class="body-block" id="body-block"></div>
+      <div class="one-liner" id="one-liner"></div>
+    </div>
+    <div id="template-area" class="hidden">
+      <div class="template-card">
+        <div class="template-card-label">Example Context File — CPG Brand</div>
+        <div class="template-section">
+          <div class="template-heading">Brand</div>
+          <div class="template-value">Revive Naturals. Better-for-you snack brand in the protein bar and trail mix category. DTC and Target, Whole Foods, Sprouts retail. Shopify plus Amazon as primary ecommerce.</div>
+        </div>
+        <div class="template-section">
+          <div class="template-heading">Core customer</div>
+          <div class="template-value">Health-conscious women aged 28 to 45. Active lifestyle. Purchases driven by clean ingredients and convenience. High repeat rate. Average LTV around $180 over 12 months.</div>
+        </div>
+        <div class="template-section">
+          <div class="template-heading">Leadership priorities this quarter</div>
+          <div class="template-value">1. Grow DTC subscription revenue to 30 percent of total. 2. Improve new customer CAC from $42 to under $35. 3. Expand Whole Foods placement from 800 to 1,400 doors by Q4.</div>
+        </div>
+        <div class="template-section">
+          <div class="template-heading">Active PDM services</div>
+          <div class="template-value">Meta, Google Search, Performance Max, SEO, Email. Affiliate is paused. TikTok was tested in Q1 and is on hold pending creative refresh.</div>
+        </div>
+        <div class="template-section">
+          <div class="template-heading">Current risks</div>
+          <div class="template-value">Creative fatigue on Meta. Top three ad sets unchanged for 11 weeks. CAC trending up 18 percent month over month. CMO asked about incrementality testing last call.</div>
+        </div>
+        <div class="template-section">
+          <div class="template-heading">Key contacts</div>
+          <div class="template-value">Sarah Kim, CMO. Day to day contact. Data driven, direct communicator. Jamie Torres, VP Ecommerce. Owns the DTC subscription goal. Skeptical of upper funnel spend.</div>
+        </div>
+        <div class="template-section">
+          <div class="template-heading">Business metrics leadership uses</div>
+          <div class="template-value">Blended CAC, subscription attach rate, LTV to CAC ratio, MER across total spend. They do not manage to platform ROAS.</div>
+        </div>
+      </div>
+    </div>
+    <div class="diagram-area" id="diagram-area">
+      <div class="diagram-label">Visual</div>
+      <div id="diagram-container"></div>
+    </div>
+    <div class="quiz-section">
+      <div class="quiz-prompt">Quick check</div>
+      <div class="quiz-question" id="quiz-question"></div>
+      <div class="options-grid" id="options-grid"></div>
+      <div class="feedback-box" id="feedback-box"></div>
+    </div>
+    <div class="action-row">
+      <button class="btn-ask" id="btn-ask" onclick="askFollowUp()">Go deeper ↗</button>
+      <button class="btn-next" id="btn-next" onclick="nextLesson()">Next lesson →</button>
+    </div>
+  </div>
+  <div id="complete-screen" class="complete-screen hidden">
+    <div class="complete-icon">🏆</div>
+    <div class="complete-title">Module complete.</div>
+    <div class="complete-sub" id="complete-sub"></div>
+    <div class="rank-display">
+      <div class="rank-label">Your rank</div>
+      <div class="rank-value" id="final-rank"></div>
+    </div><br>
+    <button class="btn-restart" onclick="restartApp()">Run it back</button>
+  </div>
+</div>
+<div class="xp-pop" id="xp-pop"></div>
+<script>
+const LESSONS=[
+  {
+    concept:"The Cold Start Problem",
+    diagram:"cold_start",
+    showTemplate:false,
+    sectionLabel:"The Problem",
+    hook:"Every time you open Claude without context, you are starting from zero. You re-explain the client, the situation, and the stakes. You pay that tax every single session.",
+    body:"Think about what happens in a typical internal prep session. You open Claude. You need to prepare for a client meeting. So you spend the first five minutes typing out who the client is, what they care about, what happened on the last call, and what the current risks are. Then you ask your actual question. <strong>That five minutes is not prep. That is overhead. And it compounds across every client, every week, across your entire portfolio.</strong> The ADs who operate at the highest level are not smarter. They have built systems that eliminate that overhead so every session starts at full context instead of zero.",
+    oneliner:"Starting Claude without context is like briefing a new analyst from scratch before every single meeting. The system fixes that.",
+    question:"You manage ten client accounts. You use Claude for internal prep an average of three times per week per account. You spend five minutes re-explaining context at the start of each session. How much time per week is that overhead costing you?",
+    options:[
+      {text:"About 30 minutes per week across the portfolio",correct:false},
+      {text:"About 150 minutes per week across the portfolio",correct:false},
+      {text:"About 2.5 hours per week that could be eliminated with a context system",correct:true},
+      {text:"It varies too much to calculate",correct:false}
+    ],
+    correct_fb:"Right. Ten clients times three sessions times five minutes is 150 minutes. That is 2.5 hours every week spent on overhead instead of actual strategic prep. The context file system eliminates most of that.",
+    wrong_fb:"Ten clients times three sessions times five minutes is 150 minutes per week. Two and a half hours. Across a year that is over 130 hours spent re-explaining context instead of doing the actual thinking. The system exists to reclaim that time.",
+    followup:"What are all the ways time gets wasted in a typical Claude internal prep session when no context system is in place? Help me build the case for why this system matters."
+  },
+  {
+    concept:"Build Your Context File",
+    diagram:"context_build",
+    showTemplate:true,
+    sectionLabel:"The Setup",
+    hook:"A context file is not a complicated document. It is seven sections, written in plain language, that tell Claude everything it needs to know about a client before you ask your first question.",
+    body:"Here is exactly what goes in it. The brand name, category, and sales channels. The core customer and what drives them to buy. Leadership priorities for the current quarter, written specifically enough that Claude can use them to filter every recommendation it makes. Active PDM services so Claude knows what is in scope. Current risks so it knows where the account is fragile. Key contacts with enough context about each person that Claude can help you communicate with them correctly. And the business metrics that leadership actually uses to make decisions, because those are never the same as your platform metrics. <strong>Below is a real example built for a CPG account. This is exactly what yours should look like.</strong>",
+    oneliner:"Seven sections. Plain language. Specific enough that Claude could prep for the meeting without you having to explain anything else.",
+    question:"You are building a context file for a CPG client. Their CMO cares about CAC and LTV to CAC ratio. Their VP of Ecommerce owns the subscription revenue goal. Which entry under business metrics is correct?",
+    options:[
+      {text:"ROAS, CTR, CPC, and conversion rate across active channels",correct:false},
+      {text:"Blended CAC, LTV to CAC ratio, subscription attach rate, and MER. Leadership does not manage to platform ROAS.",correct:true},
+      {text:"Revenue, gross margin, and EBITDA",correct:false},
+      {text:"Cost per click, cost per acquisition, and return on ad spend",correct:false}
+    ],
+    correct_fb:"Exactly. The business metrics section should reflect how leadership actually talks about performance, not how the platforms report it. If Claude does not know they manage to MER instead of ROAS, it will frame every recommendation in the wrong language.",
+    wrong_fb:"Platform metrics are inputs. Business metrics are what leadership uses to make decisions. The context file needs to reflect what matters to the people in the room, not what shows up in the platform dashboards. That distinction changes how Claude frames every recommendation it makes.",
+    followup:"Build me a complete context file for one of my CPG clients using this template. I will describe the account and you fill out all seven sections in a format I can save and upload to future sessions."
+  },
+  {
+    concept:"Run a Session and Keep It Current",
+    diagram:"session_workflow",
+    showTemplate:false,
+    sectionLabel:"The Workflow",
+    hook:"Building the context file is the one time setup. Using it correctly every session and keeping it current after every meaningful client interaction is what makes the system compound.",
+    body:"Here is the exact workflow. Before any internal prep session, upload the context file as the first thing you do. Then open with one sentence that tells Claude what you are preparing for. Something like: the context file above is for Revive Naturals. I am prepping for a QBR with their CMO on Thursday. The constraint I think we need to address is rising CAC. Help me think through the narrative. That is it. Claude is fully briefed and working on the right problem from the first response. After the session, spend three minutes updating the file with anything that changed. New priority from the CMO, a risk that surfaced, a relationship signal worth noting. <strong>Two months of consistent updates and the file is a compounding strategic asset that makes every session sharper than the one before it.</strong>",
+    oneliner:"Upload first. One sentence on what you are prepping for. Three minute update after. That is the entire workflow.",
+    question:"You just finished a client call where the CMO told you their board shifted focus from growth to profitability for the rest of the year. What do you do before your next internal Claude session for this account?",
+    options:[
+      {text:"Open Claude and mention the priority shift at the start of the session",correct:false},
+      {text:"Update the leadership priorities section of the context file to reflect the profitability focus before the next session so Claude works from the correct current reality",correct:true},
+      {text:"Create a new context file for the updated account situation",correct:false},
+      {text:"Log it in Iris and reference it manually during the next session",correct:false}
+    ],
+    correct_fb:"Right. If the file does not reflect the current priority, Claude keeps preparing you for the old situation. Three minutes after the call is all it takes to keep the system accurate. That update pays off in every session that follows.",
+    wrong_fb:"Mentioning it at the start of the session works once. But it does not persist. The next session starts cold on that point again. The update to the file is what makes the shift permanent in your prep system so you never have to re-explain it.",
+    followup:"Write me an opening message template I can use at the start of any internal Claude prep session. It should reference the context file, state what I am preparing for, and give Claude the specific question I need help thinking through."
+  },
+  {
+    concept:"Extract Signal from Call Recordings",
+    diagram:"call_intake",
+    showTemplate:false,
+    sectionLabel:"The Workflow",
+    hook:"You are sitting on one of the most valuable inputs available to you. Every recorded client call. Most ADs never use them for internal prep.",
+    body:"Get the transcript. Upload your context file. Paste in the transcript. Then ask Claude to extract the top three priorities leadership mentioned, any concerns or objections raised, relationship signals worth noting, and recommended internal next steps. What used to take twenty minutes of personal note review and synthesis happens before you close your laptop. <strong>More importantly, Claude catches things you glossed over in the moment because you were managing the room.</strong> The transcript does not have confirmation bias. You do.",
+    oneliner:"A call transcript fed to Claude is a free strategic debrief. Priorities, risks, objections, and next steps in under two minutes.",
+    question:"After a tense meeting where a client seemed skeptical about your channel strategy, what is the most effective internal use of the recording before you respond to them?",
+    options:[
+      {text:"Watch it yourself to make sure you did not miss anything important",correct:false},
+      {text:"Upload your context file and the transcript and ask Claude to extract specific objections raised, tone signals, and recommended internal talking points for the follow up",correct:true},
+      {text:"Share it with your internal team so they can hear the client's tone directly",correct:false},
+      {text:"Send it to your manager so they can assess the account health independently",correct:false}
+    ],
+    correct_fb:"Right. Watching it yourself works but has a ceiling. You will rationalize things you missed because you were managing the room. Claude reading the full transcript against a structured prompt catches what you glossed over and does it without your confirmation bias filtering the output.",
+    wrong_fb:"Reviewing it yourself is fine but Claude will catch what you missed because you were in your own head during the call. The combination of your context file and a structured prompt extracts more signal faster and without the bias that comes from having been in the room.",
+    followup:"Give me a Claude prompt I can use after every client call to extract priorities, risks, objections, relationship signals, and recommended internal next steps from a transcript."
+  },
+  {
+    concept:"Build the QBR Narrative Internally",
+    diagram:"qbr_narrative",
+    showTemplate:false,
+    sectionLabel:"The Prep",
+    hook:"Most QBR decks report what happened. The ones that retain clients explain what it means and what to do next. Claude helps you build the second type before you ever open a slide deck.",
+    body:"Before you sit down to build the deck, sit down with Claude first. Upload the context file. Paste in your performance data and your Power Circuit diagnosis. Then ask Claude to help you build the narrative arc: what worked, why it worked, what the current constraint is, and what the path forward looks like. You arrive at the deck building stage with a clear story already worked out. <strong>The slides become the packaging for a narrative you already believe in.</strong> That is what makes QBRs feel strategic instead of reactive.",
+    oneliner:"Use Claude to build the narrative before you build the deck. Walk into slide creation with a story, not a spreadsheet.",
+    question:"You have QBR data showing strong ROAS but declining revenue growth. Your client's stated priority is topline growth. How do you use Claude most effectively in your internal prep?",
+    options:[
+      {text:"Ask Claude to write talking points defending the strong ROAS numbers",correct:false},
+      {text:"Upload the context file, share the data and the growth priority, and ask Claude to help you build a narrative that connects ROAS as a foundation to diagnosing the real growth constraint",correct:true},
+      {text:"Ask Claude to generate a slide for each metric in the performance report",correct:false},
+      {text:"Ask Claude to find industry benchmarks that help contextualize the ROAS performance",correct:false}
+    ],
+    correct_fb:"Right. The client does not care about ROAS in isolation. They care about growth. Claude's job in your internal prep is to connect those dots and build the through line: here is what the data shows, here is why growth is still the constraint, here is the path forward. That is the narrative that lands in the room.",
+    wrong_fb:"Defending ROAS to a growth focused CMO is the wrong play. The internal prep work is about building the narrative that starts where the client is, uses the data honestly, and proposes a credible path forward. That is what Claude helps you construct before you walk in.",
+    followup:"Help me build a QBR narrative internally for a CPG client where ROAS is strong but topline revenue growth is below target. The constraint I believe is creative fatigue at the top of the funnel. Build me the story arc I can use to structure the deck."
+  },
+  {
+    concept:"Brief Claude Like a Senior Strategist",
+    diagram:"brief_quality",
+    showTemplate:false,
+    sectionLabel:"The Skill",
+    hook:"You already know how to think strategically. The question is how to prompt Claude to produce output at your level instead of below it. The gap is almost always in how you brief it.",
+    body:"Claude does not need you to teach it concepts. It needs you to give it the inputs that make the output sharp. The reader's role and what they actually care about. The specific tension from the last interaction. The one thing the output needs to accomplish. The tone and the length. <strong>Every detail you give Claude removes a decision it has to make on your behalf, and every decision it has to make without guidance is a chance for the output to miss.</strong> The ADs who get the best output are not better writers. They are better briefers.",
+    oneliner:"Claude produces output at the level of the brief you give it. Vague in means vague out. Specific in means send-ready out.",
+    question:"You need Claude to help you internally prepare a difficult follow up for a client VP who challenged your attribution methodology last week. Which approach gets you the best output?",
+    options:[
+      {text:"Ask Claude to draft a follow up about the attribution conversation",correct:false},
+      {text:"Tell Claude the VP's role, what they challenged specifically, the tension in the relationship, what you need the message to accomplish, the tone, and the length — then ask for a draft",correct:true},
+      {text:"Ask Claude to explain attribution in a way that is easy for non-technical executives to understand",correct:false},
+      {text:"Paste in the previous email thread and ask Claude to respond to it",correct:false}
+    ],
+    correct_fb:"Exactly. That brief gives Claude the reader, the emotional context, the specific tension, the goal, the tone, and the constraints. The output lands close to ready because Claude was not left guessing on any of the inputs that matter most.",
+    wrong_fb:"Pasting in a thread gives Claude history but not direction. The brief is what gives Claude the lens to interpret that history correctly. Without it the output addresses what happened rather than what needs to happen next.",
+    followup:"Give me five briefing templates I can use to prepare for the most common high-stakes internal prep situations an Account Director faces. Include: pushing back on a budget cut, responding to a performance concern, proposing a scope expansion, following up after a tense QBR, and re-engaging a disengaged stakeholder."
+  },
+  {
+    concept:"Translate Metrics into Business Language",
+    diagram:"business_metrics",
+    showTemplate:false,
+    sectionLabel:"The Translation",
+    hook:"Your clients' leadership teams do not think in ROAS. They think in CAC, LTV to CAC, and MER. If you cannot make that translation before the meeting, you lose the strategic seat.",
+    body:"Before any client meeting where business performance is on the agenda, use Claude internally to reframe your platform data in operator language. Feed it the numbers and ask it to calculate blended CAC, LTV to CAC ratio, media efficiency ratio, and payback period. Then ask it to tell you what story those numbers tell from a business investment perspective. <strong>A 3.8x ROAS is an ad metric. A 6.4 to 1 LTV to CAC ratio with a four month payback period is an investment thesis.</strong> One defends a dashboard. The other earns a budget increase.",
+    oneliner:"Run the metric translation in Claude before every meeting where business performance is discussed. Walk in speaking operator language, not platform language.",
+    question:"Your Meta ROAS is 3.8x and the client's CMO says they do not know what that means for their business. What should you have done before walking into that meeting?",
+    options:[
+      {text:"Prepared a slide showing how 3.8x ROAS compares to category benchmarks",correct:false},
+      {text:"Used Claude internally to translate the ROAS into blended CAC, LTV to CAC ratio, and payback period so you could present it as an investment return rather than an ad metric",correct:true},
+      {text:"Prepared a trend chart showing ROAS improvement over the last six months",correct:false},
+      {text:"Brought a one-pager explaining how ROAS is calculated",correct:false}
+    ],
+    correct_fb:"Right. The CMO told you exactly what they needed and you had the data to give it to them. The internal prep step is to run the translation before you walk in, not to explain the metric in the room. Claude does the math and frames the business case. You present the investment thesis.",
+    wrong_fb:"Benchmarks and trend charts are still ad-side thinking. The CMO was asking you to speak their language. The internal prep move is to translate everything into business metrics before the meeting so you walk in already speaking the language they use to make decisions.",
+    followup:"My client's Meta ROAS is 3.8x, average order value is $95, and their repeat purchase rate is 40 percent at six months. Use those inputs to calculate blended CAC, estimated LTV, LTV to CAC ratio, and payback period. Then tell me whether the numbers support a case for scaling spend."
+  },
+  {
+    concept:"Diagnose the Account Before You Touch It",
+    diagram:"constraint_diagnosis",
+    showTemplate:false,
+    sectionLabel:"The Discipline",
+    hook:"The most expensive mistake an Account Director makes is optimizing the wrong thing. Acting before diagnosing costs you time, budget, and client trust.",
+    body:"Before recommending any significant change to a client's strategy, use Claude internally to work through a structured diagnosis first. Upload the context file. Share the performance trend, the spend trajectory, the channel mix, and the client's stated business goals. Then ask Claude to identify the most likely growth constraint before you touch anything. <strong>Claude has no ego invested in the current strategy. It will surface what you might rationalize past.</strong> The diagnosis shapes the recommendation. Get the diagnosis right and everything downstream improves.",
+    oneliner:"Feed Claude the data before you change anything. Diagnose the real constraint first. Then fix the right thing.",
+    question:"A client's revenue is flat despite a 30 percent increase in ad spend over three months. Before your next internal prep session, what is the right first step?",
+    options:[
+      {text:"Audit the campaign structure for inefficiencies and wasted spend",correct:false},
+      {text:"Upload the context file and feed Claude the spend trend, revenue trend, channel mix, and business goals. Ask it to identify the most likely constraint before recommending any changes.",correct:true},
+      {text:"Recommend a creative refresh since creative is statistically the most common issue",correct:false},
+      {text:"Run a competitor analysis to see if market conditions explain the performance plateau",correct:false}
+    ],
+    correct_fb:"Exactly. Acting before diagnosing is how you fix the wrong layer. Claude given structured inputs will surface the real constraint whether that is creative saturation, attribution gaps, funnel leaks, or audience exhaustion. That diagnosis shapes everything that comes after it.",
+    wrong_fb:"Campaign audits and creative refreshes are tactics. The strategic discipline is diagnosis first. Claude does not have a prior strategy to defend, which means it will surface constraints you might unconsciously avoid because you recommended the current approach.",
+    followup:"Help me diagnose an account where spend is up 30 percent over three months but revenue is flat. Active channels are Meta and Google. Creative has not changed in eight weeks. Attribution model is last click. What are the most likely constraints and where would you look first?"
+  },
+  {
+    concept:"Stress Test Your Recommendations",
+    diagram:"objection_prep",
+    showTemplate:false,
+    sectionLabel:"The Prep",
+    hook:"The ADs who get caught off guard in client meetings did not prepare for the hard questions. The ones who never get caught used Claude to attack their own recommendations before walking in.",
+    body:"Before any meeting where you are presenting a significant recommendation, run an adversarial prep session internally. Upload the context file. Share your recommendation. Then ask Claude to roleplay as a skeptical senior stakeholder and push back on every assumption. <strong>Every objection Claude generates is one you now know how to handle before you are in the room.</strong> The goal is not to find validation. It is to find the weakest point in your recommendation and fix it while you still can.",
+    oneliner:"Ask Claude to attack your recommendation before the meeting. Fix the weak points while you still have time. Walk in antifragile.",
+    question:"You are internally preparing a recommendation to increase Meta budget by 40 percent for a client who has historically been skeptical of Meta's value. What is the most effective use of Claude in your prep?",
+    options:[
+      {text:"Ask Claude to write talking points supporting the 40 percent increase",correct:false},
+      {text:"Ask Claude to roleplay as a skeptical CMO who has been burned by agency promises before and challenge every assumption behind the recommendation",correct:true},
+      {text:"Ask Claude to find case studies of brands that successfully scaled Meta budgets",correct:false},
+      {text:"Ask Claude to generate a risk and benefit summary of the proposed increase",correct:false}
+    ],
+    correct_fb:"Exactly. Talking points only help if you already know the objections. Having Claude attack the recommendation forces you to find and fix the weak points before a real CMO does. You walk in having pressure tested the recommendation, not just packaged it.",
+    wrong_fb:"Case studies and risk summaries are still defensive tools. The prep that works is adversarial. Ask Claude to attack your recommendation as hard as a skeptical CMO would. The objections it surfaces are the ones you need to be ready for.",
+    followup:"Roleplay as a skeptical CMO who has heard a lot of agency promises and is protective of budget. Challenge my recommendation to increase Meta spend by 40 percent next quarter. Be as direct and specific as a real CMO would be in that room."
+  },
+  {
+    concept:"Run Competitive Intelligence Before Meetings",
+    diagram:"competitive_intel",
+    showTemplate:false,
+    sectionLabel:"The Prep",
+    hook:"Your clients expect you to know what their competitors are doing. Showing up without that intelligence is a missed opportunity to look strategic. Showing up with it takes minutes.",
+    body:"Before any client meeting where market positioning or channel strategy is likely to come up, run a structured competitive intelligence prompt internally. Upload your context file, which already has the competitor names in it. Give Claude the channels that are active for your client and a filter for what is actually relevant to their current priorities. Claude surfaces the signals that matter. <strong>You walk in with intelligence your client did not expect you to have.</strong> That is what makes the difference between an AD who reports performance and one who leads strategy.",
+    oneliner:"Run a structured competitive intelligence prompt before any meeting where market context matters. Walk in with intelligence, not just data.",
+    question:"A client's CMO asks if you have been tracking what their top competitor is doing on paid search. You have not done a formal review in six weeks. What is your best move?",
+    options:[
+      {text:"Tell the CMO you will have a full competitive report ready by end of week",correct:false},
+      {text:"Step away briefly, run a structured Claude prompt using your context file and the competitor name, and return to the conversation with actual intelligence",correct:true},
+      {text:"Pull up the competitor's website and Meta Ad Library manually during the call",correct:false},
+      {text:"Ask your SEO team to pull a keyword gap analysis before you respond",correct:false}
+    ],
+    correct_fb:"Right. A structured Claude prompt with your context file already loaded gets you useful competitive intelligence in minutes. You can step away briefly and come back to the conversation informed rather than promising a follow up report.",
+    wrong_fb:"End of week reports and manual reviews are the slow path. The competitive moment in that conversation is now. Your context file already has the competitor names. A structured prompt run quickly gets you back into the conversation with something valuable.",
+    followup:"Build me a competitive intelligence prompt I can run in fifteen minutes before any client meeting. It should cover competitor ad and messaging activity, pricing or product moves, and filter everything for relevance to paid search and Meta performance."
+  },
+  {
+    concept:"Spot Retention Risk Before It Becomes a Crisis",
+    diagram:"retention_signals",
+    showTemplate:false,
+    sectionLabel:"The Early Warning",
+    hook:"Churn does not happen suddenly. It builds slowly in call tone, response times, and the kinds of questions clients start asking. Most ADs notice too late.",
+    body:"Make it a habit to periodically feed your communication patterns and recent Iris notes into Claude for a retention signal check. A CMO who used to reply same day is now taking three days. A client who was enthusiastic in Q1 is asking detailed questions about contract scope in Q3. Paste those signals into Claude with your context file and ask it to assess the risk level, hypothesize the most likely root cause, and recommend a proactive internal response strategy. <strong>You act from diagnosis, not instinct, and you act while there is still time to change the trajectory.</strong>",
+    oneliner:"Feed your communication patterns to Claude periodically. Get a retention risk read before the renewal conversation becomes a rescue mission.",
+    question:"A client who was highly engaged in Q1 has become slower to respond, shorter in replies, and is asking detailed questions about what is included in their current contract scope. What do you do before your next internal prep session?",
+    options:[
+      {text:"Schedule a proactive check in call to ask how they are feeling about the partnership",correct:false},
+      {text:"Upload the context file, paste the communication signals and recent account notes, and ask Claude to assess retention risk, identify the likely root cause, and recommend an internal response strategy",correct:true},
+      {text:"Prepare a strong performance summary to demonstrate value before the next external touchpoint",correct:false},
+      {text:"Escalate to your manager so they can join the next client call for additional support",correct:false}
+    ],
+    correct_fb:"Right. Those are classic churn signals. Claude given the full communication context and your context file will assess the risk level more objectively, surface the most likely root cause, and help you design an internal intervention strategy before you pick up the phone.",
+    wrong_fb:"A check in call and a performance summary are responses, not strategies. The internal prep step is to understand what is driving the behavior before you decide how to respond. Claude reads the signals without your personal optimism bias and gives you a clearer picture to act from.",
+    followup:"Based on these signals — slower response times, shorter replies, and questions about contract scope — assess the churn risk for this account and build an internal response strategy for the next 30 days."
+  },
+  {
+    concept:"Your Claude Operating System",
+    diagram:"ai_os",
+    showTemplate:false,
+    sectionLabel:"The Stack",
+    hook:"The ADs who win the next five years are not going to work harder than everyone else. They are going to have better internal systems. This is what that system looks like built out.",
+    body:"The context file is the foundation. Every other tool in the stack works better because Claude already knows the client. The update habit after every meaningful interaction keeps the foundation current. The call intake workflow feeds it new signal. The QBR narrative prep, the adversarial recommendation testing, the metric translation, the retention signal check — all of it runs faster and sharper because the foundation is solid. <strong>Each piece makes every other piece more effective. That is what a system does that a collection of individual prompts never will.</strong> Build it once, use it on every account, and it compounds every single week.",
+    oneliner:"Build the foundation first. Stack the tools. The system compounds. A collection of individual prompts does not.",
+    question:"You are onboarding a new client account and want to build your Claude operating system from scratch. What do you build first, today?",
+    options:[
+      {text:"A QBR narrative template tailored to their category",correct:false},
+      {text:"The client context file so every Claude session from day one starts fully briefed on the account",correct:true},
+      {text:"A competitive intelligence prompt using their top three competitors",correct:false},
+      {text:"A retention signal monitoring framework based on their stakeholder communication patterns",correct:false}
+    ],
+    correct_fb:"Exactly. The context file is the foundation. Every other tool — the QBR prep, the competitive intel, the objection testing, the metric translation — works better when Claude already knows the client. Build the foundation on day one. Stack everything else on top of it.",
+    wrong_fb:"Every other tool in the system depends on Claude knowing the client. Without the context file, every session starts cold and every output is generic. The foundation comes first. Everything else compounds on top of it.",
+    followup:"Build me a complete Claude operating system setup for an Account Director managing eight CPG clients. Include a context file template, a post-call update routine, a QBR narrative prep prompt, an adversarial recommendation testing prompt, a metric translation prompt, and a weekly retention signal check prompt."
+  }
+];
+
+const DIAGRAMS={
+  cold_start:`<svg width="100%" viewBox="0 0 680 155" role="img"><title>Cold start overhead</title><desc>Time wasted re-explaining context versus time spent on actual prep</desc><defs><marker id="d0" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<text class="ts" x="180" y="18" text-anchor="middle">Without context system</text>
+<text class="ts" x="510" y="18" text-anchor="middle">With context system</text>
+<g class="c-coral"><rect x="30" y="30" width="295" height="44" rx="6" stroke-width="0.5"/><text class="th" x="177" y="52" text-anchor="middle" dominant-baseline="central">5 min re-explaining the client</text></g>
+<g class="c-gray"><rect x="30" y="84" width="295" height="44" rx="6" stroke-width="0.5"/><text class="th" x="177" y="106" text-anchor="middle" dominant-baseline="central">Actual prep work</text></g>
+<g class="c-teal"><rect x="355" y="30" width="295" height="98" rx="6" stroke-width="0.5"/><text class="th" x="502" y="75" text-anchor="middle" dominant-baseline="central">All actual prep work</text><text class="ts" x="502" y="95" text-anchor="middle" dominant-baseline="central">Context already loaded</text></g>
+<text class="ts" x="340" y="146" text-anchor="middle">Same session length. One produces overhead. One produces output.</text></svg>`,
+
+  context_build:`<svg width="100%" viewBox="0 0 680 160" role="img"><title>Context file seven sections</title><desc>Seven sections that make up a complete client context file</desc>
+<text class="ts" x="340" y="16" text-anchor="middle">The seven sections of a complete context file</text>
+<g class="c-teal"><rect x="20" y="28" width="195" height="34" rx="6" stroke-width="0.5"/><text class="th" x="117" y="45" text-anchor="middle" dominant-baseline="central">Brand and channels</text></g>
+<g class="c-teal"><rect x="225" y="28" width="195" height="34" rx="6" stroke-width="0.5"/><text class="th" x="322" y="45" text-anchor="middle" dominant-baseline="central">Core customer</text></g>
+<g class="c-teal"><rect x="430" y="28" width="230" height="34" rx="6" stroke-width="0.5"/><text class="th" x="545" y="45" text-anchor="middle" dominant-baseline="central">Leadership priorities</text></g>
+<g class="c-purple"><rect x="20" y="72" width="195" height="34" rx="6" stroke-width="0.5"/><text class="th" x="117" y="89" text-anchor="middle" dominant-baseline="central">Active PDM services</text></g>
+<g class="c-purple"><rect x="225" y="72" width="195" height="34" rx="6" stroke-width="0.5"/><text class="th" x="322" y="89" text-anchor="middle" dominant-baseline="central">Current risks</text></g>
+<g class="c-purple"><rect x="430" y="72" width="230" height="34" rx="6" stroke-width="0.5"/><text class="th" x="545" y="89" text-anchor="middle" dominant-baseline="central">Key contacts</text></g>
+<g class="c-amber"><rect x="200" y="116" width="280" height="34" rx="6" stroke-width="1"/><text class="th" x="340" y="133" text-anchor="middle" dominant-baseline="central">Business metrics leadership uses</text></g>
+<text class="ts" x="340" y="153" text-anchor="middle">Plain language. Specific enough that Claude can filter recommendations without asking.</text></svg>`,
+
+  session_workflow:`<svg width="100%" viewBox="0 0 680 155" role="img"><title>Session workflow</title><desc>Upload context file, open with one sentence, prep session, three minute update</desc><defs><marker id="d2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-teal"><rect x="20" y="55" width="130" height="55" rx="8" stroke-width="0.5"/><text class="th" x="85" y="76" text-anchor="middle" dominant-baseline="central">Upload file</text><text class="ts" x="85" y="94" text-anchor="middle" dominant-baseline="central">First thing</text></g>
+<line x1="150" y1="82" x2="178" y2="82" class="arr" marker-end="url(#d2)"/>
+<g class="c-purple"><rect x="180" y="45" width="140" height="75" rx="8" stroke-width="0.5"/><text class="th" x="250" y="70" text-anchor="middle" dominant-baseline="central">One sentence</text><text class="ts" x="250" y="88" text-anchor="middle" dominant-baseline="central">What you are</text><text class="ts" x="250" y="106" text-anchor="middle" dominant-baseline="central">preparing for</text></g>
+<line x1="320" y1="82" x2="348" y2="82" class="arr" marker-end="url(#d2)"/>
+<g class="c-amber"><rect x="350" y="55" width="130" height="55" rx="8" stroke-width="0.5"/><text class="th" x="415" y="76" text-anchor="middle" dominant-baseline="central">Prep session</text><text class="ts" x="415" y="94" text-anchor="middle" dominant-baseline="central">Full context active</text></g>
+<line x1="480" y1="82" x2="508" y2="82" class="arr" marker-end="url(#d2)"/>
+<g class="c-teal"><rect x="510" y="45" width="150" height="75" rx="8" stroke-width="0.5"/><text class="th" x="585" y="70" text-anchor="middle" dominant-baseline="central">3 min update</text><text class="ts" x="585" y="88" text-anchor="middle" dominant-baseline="central">Add what changed</text><text class="ts" x="585" y="106" text-anchor="middle" dominant-baseline="central">File stays current</text></g>
+<text class="ts" x="340" y="146" text-anchor="middle">Upload. One sentence. Prep. Update. That is the entire workflow.</text></svg>`,
+
+  call_intake:`<svg width="100%" viewBox="0 0 680 150" role="img"><title>Call transcript intake</title><desc>Context file plus transcript produces priorities risks and next steps</desc><defs><marker id="d3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-gray"><rect x="20" y="30" width="140" height="34" rx="6" stroke-width="0.5"/><text class="th" x="90" y="47" text-anchor="middle" dominant-baseline="central">Context file</text></g>
+<g class="c-gray"><rect x="20" y="74" width="140" height="34" rx="6" stroke-width="0.5"/><text class="th" x="90" y="91" text-anchor="middle" dominant-baseline="central">Transcript</text></g>
+<line x1="160" y1="47" x2="208" y2="78" class="arr" marker-end="url(#d3)"/>
+<line x1="160" y1="91" x2="208" y2="84" class="arr" marker-end="url(#d3)"/>
+<g class="c-purple"><rect x="210" y="55" width="155" height="55" rx="8" stroke-width="0.5"/><text class="th" x="287" y="76" text-anchor="middle" dominant-baseline="central">Claude</text><text class="ts" x="287" y="94" text-anchor="middle" dominant-baseline="central">Under 2 minutes</text></g>
+<line x1="365" y1="68" x2="403" y2="30" class="arr" marker-end="url(#d3)"/>
+<line x1="365" y1="82" x2="403" y2="82" class="arr" marker-end="url(#d3)"/>
+<line x1="365" y1="96" x2="403" y2="130" class="arr" marker-end="url(#d3)"/>
+<g class="c-teal"><rect x="405" y="12" width="255" height="34" rx="6" stroke-width="0.5"/><text class="th" x="532" y="29" text-anchor="middle" dominant-baseline="central">Top priorities surfaced</text></g>
+<g class="c-amber"><rect x="405" y="64" width="255" height="34" rx="6" stroke-width="0.5"/><text class="th" x="532" y="81" text-anchor="middle" dominant-baseline="central">Risks and objections</text></g>
+<g class="c-coral"><rect x="405" y="112" width="255" height="34" rx="6" stroke-width="0.5"/><text class="th" x="532" y="129" text-anchor="middle" dominant-baseline="central">Internal next steps</text></g></svg>`,
+
+  qbr_narrative:`<svg width="100%" viewBox="0 0 680 150" role="img"><title>QBR narrative building</title><desc>Data and priorities produce a story arc before the deck is built</desc><defs><marker id="d4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-gray"><rect x="20" y="18" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="35" text-anchor="middle" dominant-baseline="central">Performance data</text></g>
+<g class="c-gray"><rect x="20" y="62" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="79" text-anchor="middle" dominant-baseline="central">Client priorities</text></g>
+<g class="c-gray"><rect x="20" y="106" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="123" text-anchor="middle" dominant-baseline="central">Power Circuit read</text></g>
+<line x1="175" y1="35" x2="233" y2="75" class="arr" marker-end="url(#d4)"/>
+<line x1="175" y1="79" x2="233" y2="79" class="arr" marker-end="url(#d4)"/>
+<line x1="175" y1="123" x2="233" y2="83" class="arr" marker-end="url(#d4)"/>
+<g class="c-purple"><rect x="235" y="57" width="155" height="55" rx="8" stroke-width="0.5"/><text class="th" x="312" y="78" text-anchor="middle" dominant-baseline="central">Claude builds</text><text class="ts" x="312" y="96" text-anchor="middle" dominant-baseline="central">narrative arc internally</text></g>
+<line x1="390" y1="84" x2="428" y2="84" class="arr" marker-end="url(#d4)"/>
+<g class="c-amber"><rect x="430" y="46" width="230" height="76" rx="8" stroke-width="0.5"/><text class="th" x="545" y="70" text-anchor="middle" dominant-baseline="central">Story before slides</text><text class="ts" x="545" y="88" text-anchor="middle" dominant-baseline="central">What worked. Constraint.</text><text class="ts" x="545" y="106" text-anchor="middle" dominant-baseline="central">Path forward.</text></g></svg>`,
+
+  brief_quality:`<svg width="100%" viewBox="0 0 680 155" role="img"><title>Brief quality determines output</title><desc>Vague brief produces generic output, specific brief produces senior level output</desc><defs><marker id="d5" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-coral"><rect x="20" y="28" width="190" height="46" rx="6" stroke-width="0.5"/><text class="th" x="115" y="45" text-anchor="middle" dominant-baseline="central">Vague brief</text><text class="ts" x="115" y="63" text-anchor="middle" dominant-baseline="central">Missing reader, goal, tone</text></g>
+<line x1="210" y1="51" x2="258" y2="51" class="arr" marker-end="url(#d5)"/>
+<g class="c-gray"><rect x="260" y="28" width="180" height="46" rx="6" stroke-width="0.5"/><text class="th" x="350" y="45" text-anchor="middle" dominant-baseline="central">Generic output</text><text class="ts" x="350" y="63" text-anchor="middle" dominant-baseline="central">Requires full rewrite</text></g>
+<g class="c-teal"><rect x="20" y="98" width="190" height="46" rx="6" stroke-width="0.5"/><text class="th" x="115" y="115" text-anchor="middle" dominant-baseline="central">Specific brief</text><text class="ts" x="115" y="133" text-anchor="middle" dominant-baseline="central">Reader, stakes, tone, ask</text></g>
+<line x1="210" y1="121" x2="258" y2="121" class="arr" marker-end="url(#d5)"/>
+<g class="c-purple"><rect x="260" y="98" width="180" height="46" rx="6" stroke-width="0.5"/><text class="th" x="350" y="115" text-anchor="middle" dominant-baseline="central">Senior level output</text><text class="ts" x="350" y="133" text-anchor="middle" dominant-baseline="central">One pass. Send ready.</text></g>
+<g class="c-amber"><rect x="468" y="58" width="192" height="90" rx="8" stroke-width="0.5"/><text class="th" x="564" y="85" text-anchor="middle" dominant-baseline="central">The brief</text><text class="ts" x="564" y="103" text-anchor="middle" dominant-baseline="central">Reader. Stakes. Tone.</text><text class="ts" x="564" y="121" text-anchor="middle" dominant-baseline="central">Length. One clear ask.</text></g>
+<line x1="468" y1="103" x2="442" y2="103" class="arr" marker-end="url(#d5)"/></svg>`,
+
+  business_metrics:`<svg width="100%" viewBox="0 0 680 150" role="img"><title>Metric translation</title><desc>Claude translates platform metrics into business language before the meeting</desc><defs><marker id="d6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-gray"><rect x="20" y="18" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="35" text-anchor="middle" dominant-baseline="central">ROAS: 3.8x</text></g>
+<g class="c-gray"><rect x="20" y="62" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="79" text-anchor="middle" dominant-baseline="central">CPC: $1.42</text></g>
+<g class="c-gray"><rect x="20" y="106" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="123" text-anchor="middle" dominant-baseline="central">CTR: 2.1%</text></g>
+<line x1="175" y1="35" x2="233" y2="75" class="arr" marker-end="url(#d6)"/>
+<line x1="175" y1="79" x2="233" y2="79" class="arr" marker-end="url(#d6)"/>
+<line x1="175" y1="123" x2="233" y2="83" class="arr" marker-end="url(#d6)"/>
+<g class="c-purple"><rect x="235" y="57" width="140" height="55" rx="8" stroke-width="0.5"/><text class="th" x="305" y="78" text-anchor="middle" dominant-baseline="central">Claude</text><text class="ts" x="305" y="96" text-anchor="middle" dominant-baseline="central">Translates</text></g>
+<line x1="375" y1="84" x2="413" y2="84" class="arr" marker-end="url(#d6)"/>
+<g class="c-amber"><rect x="415" y="18" width="245" height="34" rx="6" stroke-width="0.5"/><text class="th" x="537" y="35" text-anchor="middle" dominant-baseline="central">Blended CAC: $28</text></g>
+<g class="c-amber"><rect x="415" y="62" width="245" height="34" rx="6" stroke-width="0.5"/><text class="th" x="537" y="79" text-anchor="middle" dominant-baseline="central">LTV to CAC: 6.4 to 1</text></g>
+<g class="c-amber"><rect x="415" y="106" width="245" height="34" rx="6" stroke-width="0.5"/><text class="th" x="537" y="123" text-anchor="middle" dominant-baseline="central">Payback: 4.2 months</text></g>
+<line x1="375" y1="70" x2="413" y2="35" class="arr" marker-end="url(#d6)"/>
+<line x1="375" y1="98" x2="413" y2="123" class="arr" marker-end="url(#d6)"/></svg>`,
+
+  constraint_diagnosis:`<svg width="100%" viewBox="0 0 680 150" role="img"><title>Constraint diagnosis</title><desc>Performance data fed to Claude identifies the real constraint before changes are made</desc><defs><marker id="d7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-gray"><rect x="20" y="18" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="35" text-anchor="middle" dominant-baseline="central">Spend trend</text></g>
+<g class="c-gray"><rect x="20" y="62" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="79" text-anchor="middle" dominant-baseline="central">Revenue trend</text></g>
+<g class="c-gray"><rect x="20" y="106" width="155" height="34" rx="6" stroke-width="0.5"/><text class="th" x="97" y="123" text-anchor="middle" dominant-baseline="central">Business goals</text></g>
+<line x1="175" y1="35" x2="233" y2="75" class="arr" marker-end="url(#d7)"/>
+<line x1="175" y1="79" x2="233" y2="79" class="arr" marker-end="url(#d7)"/>
+<line x1="175" y1="123" x2="233" y2="83" class="arr" marker-end="url(#d7)"/>
+<g class="c-purple"><rect x="235" y="57" width="160" height="55" rx="8" stroke-width="0.5"/><text class="th" x="315" y="78" text-anchor="middle" dominant-baseline="central">Claude diagnoses</text><text class="ts" x="315" y="96" text-anchor="middle" dominant-baseline="central">No ego. No bias.</text></g>
+<line x1="395" y1="84" x2="433" y2="84" class="arr" marker-end="url(#d7)"/>
+<g class="c-amber"><rect x="435" y="46" width="225" height="76" rx="8" stroke-width="0.5"/><text class="th" x="547" y="70" text-anchor="middle" dominant-baseline="central">Fix the right thing</text><text class="ts" x="547" y="88" text-anchor="middle" dominant-baseline="central">Not the symptom.</text><text class="ts" x="547" y="106" text-anchor="middle" dominant-baseline="central">The actual constraint.</text></g></svg>`,
+
+  objection_prep:`<svg width="100%" viewBox="0 0 680 145" role="img"><title>Adversarial recommendation prep</title><desc>Claude attacks the recommendation so weak points are fixed before the real meeting</desc><defs><marker id="d8" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-amber"><rect x="20" y="45" width="165" height="55" rx="8" stroke-width="0.5"/><text class="th" x="102" y="66" text-anchor="middle" dominant-baseline="central">Your recommendation</text><text class="ts" x="102" y="84" text-anchor="middle" dominant-baseline="central">Shared internally</text></g>
+<line x1="185" y1="72" x2="223" y2="72" class="arr" marker-end="url(#d8)"/>
+<g class="c-coral"><rect x="225" y="35" width="165" height="75" rx="8" stroke-width="0.5"/><text class="th" x="307" y="60" text-anchor="middle" dominant-baseline="central">Claude as</text><text class="th" x="307" y="78" text-anchor="middle" dominant-baseline="central">skeptical CMO</text><text class="ts" x="307" y="96" text-anchor="middle" dominant-baseline="central">Attacks every assumption</text></g>
+<line x1="390" y1="72" x2="428" y2="72" class="arr" marker-end="url(#d8)"/>
+<g class="c-purple"><rect x="430" y="35" width="230" height="75" rx="8" stroke-width="0.5"/><text class="th" x="545" y="60" text-anchor="middle" dominant-baseline="central">Hardened recommendation</text><text class="ts" x="545" y="78" text-anchor="middle" dominant-baseline="central">Weak points fixed.</text><text class="ts" x="545" y="96" text-anchor="middle" dominant-baseline="central">Walk in antifragile.</text></g></svg>`,
+
+  competitive_intel:`<svg width="100%" viewBox="0 0 680 150" role="img"><title>Competitive intelligence prep</title><desc>Context file and competitors filtered by Claude to produce relevant intelligence</desc><defs><marker id="d9" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-gray"><rect x="20" y="30" width="150" height="34" rx="6" stroke-width="0.5"/><text class="th" x="95" y="47" text-anchor="middle" dominant-baseline="central">Context file</text></g>
+<g class="c-gray"><rect x="20" y="74" width="150" height="34" rx="6" stroke-width="0.5"/><text class="th" x="95" y="91" text-anchor="middle" dominant-baseline="central">Competitor names</text></g>
+<line x1="170" y1="47" x2="218" y2="78" class="arr" marker-end="url(#d9)"/>
+<line x1="170" y1="91" x2="218" y2="84" class="arr" marker-end="url(#d9)"/>
+<g class="c-purple"><rect x="220" y="55" width="165" height="55" rx="8" stroke-width="0.5"/><text class="th" x="302" y="76" text-anchor="middle" dominant-baseline="central">Claude filters</text><text class="ts" x="302" y="94" text-anchor="middle" dominant-baseline="central">for relevance</text></g>
+<line x1="385" y1="68" x2="423" y2="30" class="arr" marker-end="url(#d9)"/>
+<line x1="385" y1="82" x2="423" y2="82" class="arr" marker-end="url(#d9)"/>
+<line x1="385" y1="96" x2="423" y2="130" class="arr" marker-end="url(#d9)"/>
+<g class="c-teal"><rect x="425" y="12" width="235" height="34" rx="6" stroke-width="0.5"/><text class="th" x="542" y="29" text-anchor="middle" dominant-baseline="central">Ad and messaging shifts</text></g>
+<g class="c-amber"><rect x="425" y="64" width="235" height="34" rx="6" stroke-width="0.5"/><text class="th" x="542" y="81" text-anchor="middle" dominant-baseline="central">Pricing and product moves</text></g>
+<g class="c-coral"><rect x="425" y="112" width="235" height="34" rx="6" stroke-width="0.5"/><text class="th" x="542" y="129" text-anchor="middle" dominant-baseline="central">Strategic implications only</text></g></svg>`,
+
+  retention_signals:`<svg width="100%" viewBox="0 0 680 150" role="img"><title>Retention signal check</title><desc>Communication patterns fed to Claude produce churn risk read and response strategy</desc><defs><marker id="da" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<g class="c-coral"><rect x="20" y="18" width="165" height="34" rx="6" stroke-width="0.5"/><text class="th" x="102" y="35" text-anchor="middle" dominant-baseline="central">Slower responses</text></g>
+<g class="c-coral"><rect x="20" y="62" width="165" height="34" rx="6" stroke-width="0.5"/><text class="th" x="102" y="79" text-anchor="middle" dominant-baseline="central">Shorter replies</text></g>
+<g class="c-coral"><rect x="20" y="106" width="165" height="34" rx="6" stroke-width="0.5"/><text class="th" x="102" y="123" text-anchor="middle" dominant-baseline="central">Contract questions</text></g>
+<line x1="185" y1="35" x2="233" y2="75" class="arr" marker-end="url(#da)"/>
+<line x1="185" y1="79" x2="233" y2="79" class="arr" marker-end="url(#da)"/>
+<line x1="185" y1="123" x2="233" y2="83" class="arr" marker-end="url(#da)"/>
+<g class="c-purple"><rect x="235" y="57" width="155" height="55" rx="8" stroke-width="0.5"/><text class="th" x="312" y="78" text-anchor="middle" dominant-baseline="central">Claude assesses</text><text class="ts" x="312" y="96" text-anchor="middle" dominant-baseline="central">Risk and root cause</text></g>
+<line x1="390" y1="84" x2="428" y2="84" class="arr" marker-end="url(#da)"/>
+<g class="c-teal"><rect x="430" y="46" width="230" height="76" rx="8" stroke-width="0.5"/><text class="th" x="545" y="70" text-anchor="middle" dominant-baseline="central">Internal strategy</text><text class="ts" x="545" y="88" text-anchor="middle" dominant-baseline="central">Before renewal becomes</text><text class="ts" x="545" y="106" text-anchor="middle" dominant-baseline="central">a rescue mission.</text></g></svg>`,
+
+  ai_os:`<svg width="100%" viewBox="0 0 680 158" role="img"><title>Claude operating system</title><desc>All tools stack on top of the client context file foundation</desc>
+<text class="ts" x="340" y="14" text-anchor="middle">Each layer compounds on top of the one below it</text>
+<g class="c-teal"><rect x="200" y="122" width="280" height="32" rx="6" stroke-width="1"/><text class="th" x="340" y="138" text-anchor="middle" dominant-baseline="central">Client context file (foundation)</text></g>
+<g class="c-purple"><rect x="155" y="86" width="370" height="32" rx="6" stroke-width="0.5"/><text class="th" x="340" y="102" text-anchor="middle" dominant-baseline="central">Update habit and call intake</text></g>
+<g class="c-amber"><rect x="100" y="50" width="480" height="32" rx="6" stroke-width="0.5"/><text class="th" x="340" y="66" text-anchor="middle" dominant-baseline="central">QBR narrative, metric translation, brief quality</text></g>
+<g class="c-coral"><rect x="30" y="24" width="620" height="24" rx="6" stroke-width="0.5"/><text class="ts" x="340" y="36" text-anchor="middle" dominant-baseline="central">Competitive intel, constraint diagnosis, retention signals, objection prep</text></g>
+<text class="ts" x="340" y="153" text-anchor="middle">Build the foundation first. Stack the tools. It compounds every week.</text></svg>`
+};
+
+const RANKS=[{xp:0,label:"🪵 Novice AD"},{xp:60,label:"⚒️ System Builder"},{xp:150,label:"⚙️ Operator"},{xp:280,label:"🔥 AI-Led AD"},{xp:400,label:"💎 Elite Operator"}];
+let state={currentIndex:0,totalXP:0,answered:false,wrongIndices:[],isBossRound:false,bossQueue:[],bossIndex:0};
+function getRank(xp){let r=RANKS[0].label;for(const rk of RANKS){if(xp>=rk.xp)r=rk.label;}return r;}
+function updateUI(){document.getElementById('xp-display').textContent=state.totalXP+' XP';document.getElementById('rank-display').textContent=getRank(state.totalXP);}
+function showXPPop(amt){const p=document.getElementById('xp-pop');p.textContent='+'+amt+' XP';p.classList.add('show');setTimeout(()=>p.classList.remove('show'),1800);}
+function getCurrentLesson(){return state.isBossRound?LESSONS[state.bossQueue[state.bossIndex]]:LESSONS[state.currentIndex];}
+function renderLesson(){
+  const L=getCurrentLesson();
+  const total=state.isBossRound?state.bossQueue.length:LESSONS.length;
+  const current=state.isBossRound?state.bossIndex:state.currentIndex;
+  document.getElementById('boss-banner').classList.toggle('hidden',!state.isBossRound);
+  document.getElementById('lesson-counter').textContent=state.isBossRound?`Boss Round ${state.bossIndex+1} of ${state.bossQueue.length}`:`Lesson ${state.currentIndex+1} of ${LESSONS.length}`;
+  document.getElementById('progress-fill').style.width=((current/total)*100)+'%';
+  document.getElementById('concept-tag').textContent=L.concept;
+  document.getElementById('hook-line').textContent=L.hook;
+  document.getElementById('section-label').textContent=L.sectionLabel;
+  document.getElementById('body-block').innerHTML=L.body;
+  document.getElementById('one-liner').textContent=L.oneliner;
+  const templateArea=document.getElementById('template-area');
+  const diagramArea=document.getElementById('diagram-area');
+  if(L.showTemplate){templateArea.classList.remove('hidden');diagramArea.classList.remove('hidden');}
+  else{templateArea.classList.add('hidden');diagramArea.classList.remove('hidden');}
+  document.getElementById('diagram-container').innerHTML=DIAGRAMS[L.diagram]||'';
+  document.getElementById('quiz-question').textContent=L.question;
+  const grid=document.getElementById('options-grid');
+  grid.innerHTML='';
+  state.answered=false;
+  ['A','B','C','D'].forEach((key,i)=>{
+    const btn=document.createElement('button');
+    btn.className='option-btn';
+    btn.innerHTML=`<span class="option-key">${key}</span>${L.options[i].text}`;
+    btn.onclick=()=>selectAnswer(i,L.options[i].correct,L);
+    grid.appendChild(btn);
+  });
+  const fb=document.getElementById('feedback-box');
+  fb.className='feedback-box';fb.textContent='';
+  document.getElementById('btn-next').classList.remove('show');
+  document.getElementById('btn-ask').classList.remove('show');
+  document.getElementById('complete-screen').classList.add('hidden');
+  document.getElementById('lesson-content').classList.remove('hidden');
+}
+function selectAnswer(index,correct,L){
+  if(state.answered)return;
+  state.answered=true;
+  document.querySelectorAll('.option-btn').forEach((btn,i)=>{
+    btn.disabled=true;
+    if(i===index)btn.classList.add(correct?'correct':'wrong');
+    if(!correct&&L.options[i].correct)btn.classList.add('correct');
+  });
+  const fb=document.getElementById('feedback-box');
+  fb.textContent=(correct?'✓ ':'✗ ')+(correct?L.correct_fb:L.wrong_fb);
+  fb.className='feedback-box show '+(correct?'correct-fb':'wrong-fb');
+  const xp=correct?25:10;
+  state.totalXP+=xp;showXPPop(xp);updateUI();
+  if(!correct&&!state.isBossRound&&!state.wrongIndices.includes(state.currentIndex))state.wrongIndices.push(state.currentIndex);
+  document.getElementById('btn-next').classList.add('show');
+  document.getElementById('btn-ask').classList.add('show');
+}
+function nextLesson(){
+  if(state.isBossRound){
+    state.bossIndex++;
+    if(state.bossIndex>=state.bossQueue.length){showComplete();return;}
+    renderLesson();return;
+  }
+  state.currentIndex++;
+  if(state.currentIndex>=LESSONS.length){
+    if(state.wrongIndices.length>0){
+      state.isBossRound=true;
+      state.bossQueue=state.wrongIndices.slice(0,3);
+      state.bossIndex=0;
+      renderLesson();
+    }else{showComplete();}
+    return;
+  }
+  renderLesson();
+}
+function askFollowUp(){
+  const L=getCurrentLesson();
+  if(typeof sendPrompt==='function'){sendPrompt(L.followup);}
+  else{alert('Follow-up: '+L.followup);}
+}
+function showComplete(){
+  document.getElementById('lesson-content').classList.add('hidden');
+  document.getElementById('complete-screen').classList.remove('hidden');
+  document.getElementById('final-rank').textContent=getRank(state.totalXP);
+  document.getElementById('complete-sub').textContent=state.totalXP+' XP. '+getRank(state.totalXP)+'. You now have a system, not just knowledge.';
+}
+function restartApp(){
+  state={currentIndex:0,totalXP:0,answered:false,wrongIndices:[],isBossRound:false,bossQueue:[],bossIndex:0};
+  document.getElementById('complete-screen').classList.add('hidden');
+  updateUI();renderLesson();
+}
+updateUI();renderLesson();
+</script>
+</body>
+</html>
