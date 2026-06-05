@@ -157,8 +157,8 @@
       <div class="feedback-box" id="feedback-box"></div>
     </div>
     <div class="action-row">
-      <button class="btn-ask" id="btn-ask" onclick="askFollowUp()">Go deeper ↗</button>
-      <button class="btn-next" id="btn-next" onclick="nextLesson()">Next lesson →</button>
+      <button class="btn-ask" id="btn-ask">Go deeper ↗</button>
+      <button class="btn-next" id="btn-next">Next lesson →</button>
     </div>
   </div>
   <div id="complete-screen" class="complete-screen hidden">
@@ -169,11 +169,12 @@
       <div class="rank-label">Your rank</div>
       <div class="rank-value" id="final-rank"></div>
     </div><br>
-    <button class="btn-restart" onclick="restartApp()">Run it back</button>
+    <button class="btn-restart" id="btn-restart">Run it back</button>
   </div>
 </div>
 <div class="xp-pop" id="xp-pop"></div>
-<script>
+<script type="module">
+import { saveProgress, loadProgress } from './supabase-client.js';
 const LESSONS=[
   {
     concept:"The Cold Start Problem",
@@ -592,6 +593,7 @@ function selectAnswer(index,correct,L){
   if(!correct&&!state.isBossRound&&!state.wrongIndices.includes(state.currentIndex))state.wrongIndices.push(state.currentIndex);
   document.getElementById('btn-next').classList.add('show');
   document.getElementById('btn-ask').classList.add('show');
+  saveProgress(state.isBossRound?state.bossQueue[state.bossIndex]:state.currentIndex, state.totalXP, {answerIndex:index,correct});
 }
 function nextLesson(){
   if(state.isBossRound){
@@ -627,7 +629,20 @@ function restartApp(){
   document.getElementById('complete-screen').classList.add('hidden');
   updateUI();renderLesson();
 }
-updateUI();renderLesson();
+document.getElementById('btn-next').addEventListener('click', nextLesson);
+document.getElementById('btn-ask').addEventListener('click', askFollowUp);
+document.getElementById('btn-restart').addEventListener('click', restartApp);
+
+(async () => {
+  const data = await loadProgress();
+  if (data && data.length > 0) {
+    const maxLesson = data.reduce((a, b) => a.lesson_index > b.lesson_index ? a : b);
+    state.totalXP = maxLesson.xp;
+    state.currentIndex = Math.min(maxLesson.lesson_index, LESSONS.length - 1);
+  }
+  updateUI();
+  renderLesson();
+})();
 </script>
 </body>
 </html>
